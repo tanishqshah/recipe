@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Simple, bold cooking pot icon - highly visible -->
+  
+  <!-- Pot body - large and bold -->
+  <rect x="25" y="40" width="50" height="45" rx="5" fill="#F97316" stroke="#EA580C" stroke-width="4"/>
+  
+  <!-- Pot lid -->
+  <ellipse cx="50" cy="40" rx="26" ry="8" fill="#EA580C" stroke="#C2410C" stroke-width="3"/>
+  <ellipse cx="50" cy="40" rx="22" ry="6" fill="#F97316"/>
+  
+  <!-- Handle -->
+  <path d="M 75 45 Q 85 45, 85 55 Q 85 65, 75 65" 
+        stroke="#EA580C" 
+        stroke-width="5" 
+        fill="none" 
+        stroke-linecap="round"/>
+  
+  <!-- Steam -->
+  <circle cx="35" cy="25" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="50" cy="20" r="5" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="65" cy="25" r="4" fill="#FFFFFF" opacity="0.8"/>
+</svg>
