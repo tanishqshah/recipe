@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Clock, Users, ChefHat, Star, Flame } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { transformRecipe } from '@/utils/recipeTransformer';
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,14 +19,17 @@ const RecipeDetail = () => {
     const fetchRecipe = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://dummyjson.com/recipes/${id}`);
+        setError(null);
+        const response = await fetch(`http://192.168.1.2:8080/recipe/${id}`);
         
         if (!response.ok) {
           throw new Error('Recipe not found');
         }
         
-        const data: Recipe = await response.json();
-        setRecipe(data);
+        const data = await response.json();
+        // Transform the recipe data to match expected format
+        const transformedRecipe = transformRecipe(data);
+        setRecipe(transformedRecipe);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {

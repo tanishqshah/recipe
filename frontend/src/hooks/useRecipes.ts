@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Recipe, RecipesResponse } from '@/types/recipe';
+import { transformRecipe } from '@/utils/recipeTransformer';
 
 interface UseRecipesOptions {
   limit?: number;
@@ -17,16 +18,28 @@ export const useRecipes = (options: UseRecipesOptions = {}) => {
     try {
       setLoading(true);
       setError(null);
-      const skipValue = customSkip !== undefined ? customSkip : skip;
-      const response = await fetch(`https://dummyjson.com/recipes?limit=${limit}&skip=${skipValue}`);
+      const response = await fetch('http://192.168.1.2:8080/recipe/all');
       
       if (!response.ok) {
         throw new Error('Failed to fetch recipes');
       }
       
-      const data: RecipesResponse = await response.json();
-      setRecipes(data.recipes);
-      setTotal(data.total);
+      const data = await response.json();
+      
+      // Handle different response formats
+      let recipesArray: Recipe[] = [];
+      
+      // If data is an array directly
+      if (Array.isArray(data)) {
+        recipesArray = data.map(transformRecipe);
+      } 
+      // If data has a recipes property
+      else if (data.recipes && Array.isArray(data.recipes)) {
+        recipesArray = data.recipes.map(transformRecipe);
+      }
+      
+      setRecipes(recipesArray);
+      setTotal(recipesArray.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

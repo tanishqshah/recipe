@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,18 @@ import { Button } from '@/components/ui/button';
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  value?: string;
 }
 
-export const SearchBar = ({ onSearch, placeholder = "Search recipes by name or cuisine..." }: SearchBarProps) => {
-  const [query, setQuery] = useState('');
+export const SearchBar = ({ onSearch, placeholder = "Search recipes by name or cuisine...", value }: SearchBarProps) => {
+  const [query, setQuery] = useState(value || '');
+  
+  // Update internal state when external value changes (e.g., when clearing filters)
+  useEffect(() => {
+    if (value !== undefined) {
+      setQuery(value);
+    }
+  }, [value]);
 
   const handleSearch = () => {
     if (query.trim().length >= 3) {

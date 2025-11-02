@@ -1,7 +1,8 @@
 import { Recipe } from '@/types/recipe';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { X, FilterX } from 'lucide-react';
 
 interface RecipeFiltersProps {
   recipes: Recipe[];
@@ -15,6 +16,8 @@ interface RecipeFiltersProps {
   onCuisineChange: (cuisine: string | null) => void;
   selectedMealType: string | null;
   onMealTypeChange: (mealType: string | null) => void;
+  onClearFilters: () => void;
+  hasActiveFilters: boolean;
 }
 
 export const RecipeFilters = ({ 
@@ -28,7 +31,9 @@ export const RecipeFilters = ({
   selectedCuisine,
   onCuisineChange,
   selectedMealType,
-  onMealTypeChange
+  onMealTypeChange,
+  onClearFilters,
+  hasActiveFilters
 }: RecipeFiltersProps) => {
   const allTags = Array.from(new Set(recipes.flatMap(r => r.tags))).sort();
   const allDifficulties = Array.from(new Set(recipes.map(r => r.difficulty))).sort();
@@ -110,6 +115,19 @@ export const RecipeFilters = ({
             </SelectContent>
           </Select>
         </div>
+
+        {hasActiveFilters && (
+          <div className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={onClearFilters}
+              className="w-full sm:w-auto"
+            >
+              <FilterX className="mr-2 h-4 w-4" />
+              Clear Filters
+            </Button>
+          </div>
+        )}
         
         {selectedTags.length > 0 && (
           <div className="flex flex-wrap gap-2">

@@ -35,6 +35,16 @@ const Index = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setSelectedTags([]);
+    setSortBy(null);
+    setSelectedDifficulty(null);
+    setSelectedCuisine(null);
+    setSelectedMealType(null);
+    setCurrentPage(1);
+  };
+
   const filteredRecipes = useMemo(() => {
     let result = recipes;
 
@@ -119,7 +129,7 @@ const Index = () => {
           <p className="text-muted-foreground mb-8">
             Discover delicious recipes from around the world
           </p>
-          <SearchBar onSearch={setSearchQuery} />
+          <SearchBar onSearch={setSearchQuery} value={searchQuery} />
         </div>
 
         {recipes.length > 0 && (
@@ -145,6 +155,15 @@ const Index = () => {
                 setSelectedMealType(val);
                 setCurrentPage(1);
               }}
+              onClearFilters={clearAllFilters}
+              hasActiveFilters={
+                searchQuery !== '' ||
+                selectedTags.length > 0 ||
+                sortBy !== null ||
+                selectedDifficulty !== null ||
+                selectedCuisine !== null ||
+                selectedMealType !== null
+              }
             />
           </div>
         )}
