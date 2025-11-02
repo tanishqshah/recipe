@@ -54,12 +54,13 @@ const Signup = () => {
 
   const onSubmit = async (values: SignupFormValues) => {
     setError(null);
-    const success = await signup(values.name, values.email, values.password);
+    const result = await signup(values.name, values.email, values.password);
     
-    if (success) {
-      navigate('/', { replace: true });
+    if (result.success) {
+      // Redirect to login page after successful signup
+      navigate('/login', { replace: true });
     } else {
-      setError('Signup failed. Please try again.');
+      setError(result.error || 'Signup failed. Please try again.');
     }
   };
 

@@ -57,12 +57,12 @@ const Login = () => {
 
   const onSubmit = async (values: LoginFormValues) => {
     setError(null);
-    const success = await login(values.email, values.password);
+    const result = await login(values.email, values.password);
     
-    if (success) {
+    if (result.success) {
       navigate('/', { replace: true });
     } else {
-      setError('Invalid email or password. Please try again.');
+      setError(result.error || 'Invalid email or password. Please try again.');
     }
   };
 

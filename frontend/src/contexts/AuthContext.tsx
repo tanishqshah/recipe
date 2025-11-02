@@ -8,10 +8,11 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isLoading: boolean;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +45,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
     return null;
   });
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('authToken');
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,82 +56,103 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
-      // Simulate API call - in a real app, replace this with actual API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Hardcoded admin credentials
-      const ADMIN_EMAIL = 'admin';
-      const ADMIN_PASSWORD = 'admin';
-      
-      // Check for hardcoded admin credentials
-      if (email.toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      const response = await fetch('http://192.168.1.2:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message && !data.message.includes('Invalid email or password')) {
+        // Extract bearer token from message
+        // The token should be in the message field
+        const bearerToken = data.message.trim();
+        
+        // Store token and authentication state
+        setToken(bearerToken);
+        localStorage.setItem('authToken', bearerToken);
+        setIsAuthenticated(true);
+        
+        // Try to get user info - if not available in response, use email
         const userData = {
-          name: 'Admin',
+          name: data.name || email.split('@')[0] || 'User',
           email: email,
         };
-        setIsAuthenticated(true);
         setUser(userData);
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', 'Admin');
+        localStorage.setItem('userName', userData.name);
+        
         setIsLoading(false);
-        return true;
+        return { success: true };
+      } else {
+        // Handle error message from API
+        const errorMessage = data.message || 'Login failed. Please try again.';
+        setIsLoading(false);
+        return { success: false, error: errorMessage };
       }
-      
-      // Invalid credentials
-      setIsLoading(false);
-      return false;
     } catch (error) {
       setIsLoading(false);
-      return false;
+      return { success: false, error: 'Network error. Please try again.' };
     }
   };
 
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signup = async (name: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
-      // Simulate API call - in a real app, replace this with actual API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Simple validation - in a real app, this would be handled by the backend
-      // For demo purposes, accept any name/email/password combination
-      if (name && email && password) {
-        const userData = {
-          name: name,
+      const response = await fetch('http://192.168.1.2:8080/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: name,
           email: email,
-        };
-        setIsAuthenticated(true);
-        setUser(userData);
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', name);
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.message && data.message.includes('User registered successfully!')) {
+        // Don't auto-login after signup - user should login separately
         setIsLoading(false);
-        return true;
+        return { success: true };
+      } else {
+        // Handle error message from API
+        const errorMessage = data.message || 'Signup failed. Please try again.';
+        setIsLoading(false);
+        return { success: false, error: errorMessage };
       }
-      
-      setIsLoading(false);
-      return false;
     } catch (error) {
       setIsLoading(false);
-      return false;
+      return { success: false, error: 'Network error. Please try again.' };
     }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setToken(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
+    localStorage.removeItem('authToken');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, isLoading, token }}>
       {children}
     </AuthContext.Provider>
   );
