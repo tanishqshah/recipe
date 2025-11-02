@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Recipe, RecipesResponse } from '@/types/recipe';
 import { transformRecipe } from '@/utils/recipeTransformer';
+import { getApiUrl, API_ENDPOINTS } from '@/config/api';
 
 interface UseRecipesOptions {
   limit?: number;
@@ -18,7 +19,7 @@ export const useRecipes = (options: UseRecipesOptions = {}) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('http://192.168.1.2:8080/recipe/all');
+      const response = await fetch(getApiUrl(API_ENDPOINTS.RECIPE_ALL));
       
       if (!response.ok) {
         throw new Error('Failed to fetch recipes');

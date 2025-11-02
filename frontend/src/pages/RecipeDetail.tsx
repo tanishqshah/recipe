@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Clock, Users, ChefHat, Star, Flame } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { transformRecipe } from '@/utils/recipeTransformer';
+import { getApiUrl, API_ENDPOINTS } from '@/config/api';
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,7 +21,7 @@ const RecipeDetail = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`http://192.168.1.2:8080/recipe/${id}`);
+        const response = await fetch(getApiUrl(API_ENDPOINTS.RECIPE_BY_ID(id!)));
         
         if (!response.ok) {
           throw new Error('Recipe not found');

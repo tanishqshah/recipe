@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getApiUrl, API_ENDPOINTS } from '@/config/api';
 
 interface User {
   name: string;
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://192.168.1.2:8080/auth/login', {
+      const response = await fetch(getApiUrl(API_ENDPOINTS.AUTH_LOGIN), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +112,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://192.168.1.2:8080/auth/signup', {
+      const response = await fetch(getApiUrl(API_ENDPOINTS.AUTH_SIGNUP), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
